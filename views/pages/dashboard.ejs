@@ -1,0 +1,266 @@
+<!--
+  ============================================================================
+  📊 ANALYTICS DASHBOARD VIEW (views/pages/dashboard.ejs)
+  ============================================================================
+  💡 WHAT DOES THIS PAGE SHOW?
+  1. Welcome greeting customized to the logged-in user.
+  2. Overdue banner if any equipment is currently past its return date.
+  3. Real-time KPI summary cards (Total units, Available, Issued, Overdue, Damaged).
+  4. Interactive Chart.js charts (Category breakdown & Status distribution).
+  5. Recent borrowing activity table with status badges.
+  ============================================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head') %>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <%- include('../partials/navbar') %>
+
+  <main class="main-wrapper">
+
+    <!-- Page Header & Quick Action Buttons -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">
+          Institutional Lab Dashboard
+        </h1>
+        <p class="page-subtitle">
+          Welcome back, <strong><%= currentUser.name %></strong> • <%= currentUser.department %>
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <a href="/assets" class="btn btn-secondary btn-hover">
+          <i class="bx bx-search-alt"></i> Browse Equipment
+        </a>
+
+        <% if (currentUser.role === 'requester') { %>
+          <a href="/requests/new" class="btn btn-primary btn-hover">
+            <i class="bx bx-plus-circle"></i> Borrow Item
+          </a>
+        <% } %>
+
+        <% if (currentUser.role === 'incharge' || currentUser.role === 'admin') { %>
+          <a href="/requests" class="btn btn-primary btn-hover">
+            <i class="bx bx-transfer"></i> Process Requests (<%= kpis.pendingRequestsCount %>)
+          </a>
+        <% } %>
+
+        <% if (currentUser.role === 'admin') { %>
+          <a href="/assets/new" class="btn btn-success btn-hover">
+            <i class="bx bx-plus"></i> Add New Asset
+          </a>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Feedback Notification Alerts -->
+    <%- include('../partials/alerts') %>
+
+    <!-- ⚠️ Overdue Alert Banner: Displayed when items are past return date -->
+    <% if (kpis.overdueCount > 0) { %>
+      <div class="alert-banner overdue animate-pulse" role="alert">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <i class="bx bx-alarm-exclamation" style="font-size: 1.8rem;"></i>
+          <div>
+            <strong>Action Required: <%= kpis.overdueCount %> Equipment Item(s) Overdue!</strong>
+            <p style="font-size: 0.82rem; margin-top: 2px;">
+              Items currently past their expected return date. Please contact requesters or audit returns.
+            </p>
+          </div>
+        </div>
+        <% if (currentUser.role === 'incharge' || currentUser.role === 'admin') { %>
+          <a href="/requests?status=Overdue" class="btn btn-danger btn-sm" style="white-space: nowrap;">
+            Review Overdue Items (<%= kpis.overdueCount %>)
+          </a>
+        <% } %>
+      </div>
+    <% } %>
+
+    <!-- 📈 KPI Metric Cards Grid -->
+    <div class="kpi-grid">
+      <!-- Total Units -->
+      <div class="kpi-card">
+        <div class="kpi-icon-box blue">
+          <i class="bx bx-cube-alt"></i>
+        </div>
+        <div>
+          <div class="kpi-value"><%= kpis.totalInventoryUnits %></div>
+          <div class="kpi-label">Total Asset Units (<%= kpis.totalAssetTypes %> Models)</div>
+        </div>
+      </div>
+
+      <!-- Available Units -->
+      <div class="kpi-card">
+        <div class="kpi-icon-box green">
+          <i class="bx bx-check-double"></i>
+        </div>
+        <div>
+          <div class="kpi-value"><%= kpis.totalAvailableUnits %></div>
+          <div class="kpi-label">Available for Borrowing</div>
+        </div>
+      </div>
+
+      <!-- Currently Issued Out Units -->
+      <div class="kpi-card">
+        <div class="kpi-icon-box indigo">
+          <i class="bx bx-share-alt"></i>
+        </div>
+        <div>
+          <div class="kpi-value"><%= kpis.totalIssuedUnits %></div>
+          <div class="kpi-label">Currently Issued Out</div>
+        </div>
+      </div>
+
+      <!-- Overdue Count -->
+      <div class="kpi-card">
+        <div class="kpi-icon-box red">
+          <i class="bx bx-alarm"></i>
+        </div>
+        <div>
+          <div class="kpi-value"><%= kpis.overdueCount %></div>
+          <div class="kpi-label">Overdue Returns</div>
+        </div>
+      </div>
+
+      <!-- Damaged / Lost Items -->
+      <div class="kpi-card">
+        <div class="kpi-icon-box yellow">
+          <i class="bx bx-wrench"></i>
+        </div>
+        <div>
+          <div class="kpi-value"><%= kpis.damagedLostCount %></div>
+          <div class="kpi-label">Damaged / Lost Items</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 📊 Analytics Charts Grid -->
+    <div class="analytics-grid">
+      <!-- Bar Chart: Inventory by Category -->
+      <div class="chart-card">
+        <h2 class="chart-title">
+          <i class="bx bx-bar-chart-alt-2"></i> Inventory by Lab Discipline & Category
+        </h2>
+        <div class="chart-canvas-wrapper">
+          <canvas id="categoryChartCanvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Doughnut Chart: Asset Status Distribution -->
+      <div class="chart-card">
+        <h2 class="chart-title">
+          <i class="bx bx-pie-chart-alt"></i> Equipment Status
+        </h2>
+        <div class="chart-canvas-wrapper">
+          <canvas id="statusChartCanvas"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- 📜 Recent Activity Table -->
+    <div class="table-card">
+      <div class="table-header">
+        <h2 class="table-title">
+          <i class="bx bx-history"></i>
+          <span><%= currentUser.role === 'requester' ? 'My Recent Equipment Requests' : 'Institutional Issue & Return Activity' %></span>
+        </h2>
+        <a href="<%= currentUser.role === 'requester' ? '/requests/my' : '/requests' %>" class="btn btn-secondary btn-sm">
+          View All Logs <i class="bx bx-right-arrow-alt"></i>
+        </a>
+      </div>
+
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Asset Tag & Name</th>
+              <th>Requester</th>
+              <th>Quantity</th>
+              <th>Expected Return</th>
+              <th>Status</th>
+              <th>Condition</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!recentActivities || recentActivities.length === 0) { %>
+              <tr>
+                <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                  No recent equipment requests found.
+                </td>
+              </tr>
+            <% } else { %>
+              <!-- Loop through recent activity items -->
+              <% recentActivities.forEach(function(item) { %>
+                <%
+                  // Compute if this item is currently overdue
+                  const isItemOverdue = item.status === 'Issued' && item.expectedReturnDate && new Date(item.expectedReturnDate) < new Date();
+                  const displayStatus = isItemOverdue ? 'Overdue' : item.status;
+                %>
+                <tr>
+                  <td>
+                    <strong><%= item.asset ? item.asset.name : 'Unknown Asset' %></strong>
+                    <div style="font-size: 0.78rem; color: var(--text-muted);">
+                      Tag: <%= item.asset ? item.asset.assetTag : 'N/A' %> • <%= item.asset ? item.asset.labLocation : '' %>
+                    </div>
+                  </td>
+                  <td>
+                    <div><%= item.requester ? item.requester.name : 'N/A' %></div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">
+                      <%= item.requester ? item.requester.department : '' %> (<%= item.requester ? item.requester.idNumber : '' %>)
+                    </div>
+                  </td>
+                  <td><strong><%= item.quantity %></strong> unit(s)</td>
+                  <td>
+                    <%= item.expectedReturnDate ? new Date(item.expectedReturnDate).toLocaleDateString() : 'N/A' %>
+                    <% if (isItemOverdue) { %>
+                      <span style="color: #fb7185; font-size: 0.75rem; display: block; font-weight: 700;">OVERDUE</span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <span class="status-badge <%= displayStatus %>">
+                      <%= displayStatus %>
+                    </span>
+                  </td>
+                  <td>
+                    <% if (item.status === 'Returned') { %>
+                      <span class="condition-pill <%= item.returnCondition %>">
+                        <%= item.returnCondition %>
+                      </span>
+                    <% } else { %>
+                      <span style="color: var(--text-dim); font-size: 0.8rem;">—</span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <% if (currentUser.role === 'incharge' || currentUser.role === 'admin') { %>
+                      <a href="/requests" class="btn btn-secondary btn-sm">Manage</a>
+                    <% } else { %>
+                      <a href="/requests/my" class="btn btn-secondary btn-sm">Details</a>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <%- include('../partials/footer') %>
+
+  <!-- Pass serialized Chart.js Data safely from Node controller to client JS -->
+  <script>
+    window.__CHART_CATEGORY__ = <%- JSON.stringify(chartCategory) %>;
+    window.__CHART_STATUS__ = <%- JSON.stringify(chartStatus) %>;
+  </script>
+
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

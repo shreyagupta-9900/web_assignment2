@@ -1,0 +1,27 @@
+<!--
+  ============================================================================
+  🔔 NOTIFICATION ALERTS PARTIAL (views/partials/alerts.ejs)
+  ============================================================================
+  💡 WHAT DOES THIS PARTIAL DO?
+  Displays green success banners or red error banners if passed from controllers
+  via query parameters (e.g. /login?error=Invalid+password or /assets?success=Updated).
+  ============================================================================
+-->
+
+<% if (typeof error !== 'undefined' && error) { %>
+  <div class="alert-banner error animate-fade-in" role="alert">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <i class="bx bx-error-circle" style="font-size: 1.3rem;"></i>
+      <span><%= error %></span>
+    </div>
+  </div>
+<% } %>
+
+<% if (typeof success !== 'undefined' && success) { %>
+  <div class="alert-banner success animate-fade-in" role="alert">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <i class="bx bx-check-circle" style="font-size: 1.3rem;"></i>
+      <span><%= success %></span>
+    </div>
+  </div>
+<% } %>

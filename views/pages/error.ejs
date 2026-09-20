@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head') %>
+</head>
+<body>
+
+  <%- include('../partials/navbar') %>
+
+  <main class="main-wrapper" style="text-align: center; padding: 60px 20px;">
+    <div style="margin-bottom: 16px;">
+      <i class="bx bx-error-circle" style="font-size: 4.5rem; color: #f87171;"></i>
+    </div>
+
+    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 8px;">
+      <%= typeof statusCode !== 'undefined' ? statusCode : 500 %> Error
+    </h1>
+
+    <p style="color: var(--text-muted); font-size: 1.05rem; max-width: 540px; margin: 0 auto 28px; line-height: 1.6;">
+      <%= typeof message !== 'undefined' ? message : 'An unexpected error occurred while processing your laboratory request.' %>
+    </p>
+
+    <div style="display: flex; justify-content: center; gap: 12px;">
+      <a href="/dashboard" class="btn btn-primary btn-hover" style="padding: 10px 22px;">
+        <i class="bx bx-home-alt"></i> Back to Dashboard
+      </a>
+      <a href="/assets" class="btn btn-secondary" style="padding: 10px 22px;">
+        <i class="bx bx-cabinet"></i> Browse Catalog
+      </a>
+    </div>
+  </main>
+
+  <%- include('../partials/footer') %>
+
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

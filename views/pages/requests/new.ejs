@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../../partials/head') %>
+</head>
+<body>
+
+  <%- include('../../partials/navbar') %>
+
+  <main class="main-wrapper">
+
+    <div class="page-header" style="max-width: 720px; margin: 0 auto 24px;">
+      <div>
+        <a href="/assets" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; gap: 4px; margin-bottom: 6px;">
+          <i class="bx bx-left-arrow-alt"></i> Back to Catalog
+        </a>
+        <h1 class="page-title">
+          <i class="bx bx-file-blank"></i> Raise Equipment Issue Request
+        </h1>
+        <p class="page-subtitle">
+          Submit equipment borrowing requisition for Lab In-Charge review and dispatch.
+        </p>
+      </div>
+    </div>
+
+    <%- include('../../partials/alerts') %>
+
+    <div class="form-card animate-fade-in">
+      <form action="/requests/new" method="POST">
+
+        <!-- Asset Selection -->
+        <div class="form-group">
+          <label class="form-label" for="assetId">Select Equipment / Asset *</label>
+          <select id="assetId" name="assetId" class="form-control" required>
+            <% if (selectedAsset) { %>
+              <option value="<%= selectedAsset._id %>" selected>
+                <%= selectedAsset.name %> [<%= selectedAsset.assetTag %>] — <%= selectedAsset.availableQuantity %> units available (<%= selectedAsset.labLocation %>)
+              </option>
+            <% } else { %>
+              <option value="" disabled selected>-- Choose available laboratory equipment --</option>
+            <% } %>
+
+            <% availableAssets.forEach(function(item) { %>
+              <% if (!selectedAsset || item._id.toString() !== selectedAsset._id.toString()) { %>
+                <option value="<%= item._id %>">
+                  <%= item.name %> [<%= item.assetTag %>] — <%= item.availableQuantity %> units available (<%= item.labLocation %>)
+                </option>
+              <% } %>
+            <% }); %>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <!-- Quantity Requested -->
+          <div class="form-group">
+            <label class="form-label" for="quantity">Quantity Required *</label>
+            <input
+              type="number"
+              id="quantity"
+              name="quantity"
+              class="form-control"
+              min="1"
+              max="10"
+              value="1"
+              required
+            />
+          </div>
+
+          <!-- Expected Return Date -->
+          <div class="form-group">
+            <label class="form-label" for="expectedReturnDate">Expected Return Date *</label>
+            <%
+              const tomorrow = new Date(Date.now() + 24*60*60*1000).toISOString().split('T')[0];
+            %>
+            <input
+              type="date"
+              id="expectedReturnDate"
+              name="expectedReturnDate"
+              class="form-control"
+              min="<%= tomorrow %>"
+              required
+            />
+          </div>
+        </div>
+
+        <!-- Purpose -->
+        <div class="form-group">
+          <label class="form-label" for="purpose">Purpose / Project Details *</label>
+          <textarea
+            id="purpose"
+            name="purpose"
+            class="form-control"
+            rows="3"
+            placeholder="Specify course experiment name, research project, capstone assignment, or event requirements..."
+            required
+          ></textarea>
+        </div>
+
+        <div style="background: var(--bg-surface-subtle); border: 1px solid var(--border-glass); border-radius: 12px; padding: 14px; margin-bottom: 20px; font-size: 0.85rem; color: var(--text-muted);">
+          <i class="bx bx-info-circle" style="color: var(--primary);"></i>
+          <strong>Institutional Asset Guidelines:</strong> Equipment must be handled responsibly. Any damage or overdue returns will be flagged during physical audit and may restrict future requisitions.
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+          <a href="/assets" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary btn-hover">
+            <i class="bx bx-send"></i> Submit Request
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </main>
+
+  <%- include('../../partials/footer') %>
+
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

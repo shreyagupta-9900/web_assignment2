@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../../partials/head') %>
+</head>
+<body>
+
+  <%- include('../../partials/navbar') %>
+
+  <main class="main-wrapper">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">
+          <i class="bx bx-receipt"></i> My Equipment Requests & Borrowed Gear
+        </h1>
+        <p class="page-subtitle">
+          Track the approval status and return deadlines for your requested laboratory assets.
+        </p>
+      </div>
+
+      <a href="/requests/new" class="btn btn-primary btn-hover">
+        <i class="bx bx-plus-circle"></i> Borrow New Item
+      </a>
+    </div>
+
+    <%- include('../../partials/alerts') %>
+
+    <div class="table-card">
+      <div class="table-header">
+        <h2 class="table-title">
+          <i class="bx bx-list-ul"></i>
+          <span>Requisition History (<%= requests.length %>)</span>
+        </h2>
+      </div>
+
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Equipment Name & Tag</th>
+              <th>Qty</th>
+              <th>Purpose</th>
+              <th>Requested On</th>
+              <th>Expected Return</th>
+              <th>Status</th>
+              <th>Return Condition</th>
+              <th>In-Charge Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!requests || requests.length === 0) { %>
+              <tr>
+                <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                  <i class="bx bx-folder-open" style="font-size: 3rem; margin-bottom: 8px;"></i>
+                  <p>You have not raised any equipment requests yet.</p>
+                  <a href="/requests/new" class="btn btn-primary btn-sm" style="margin-top: 12px;">
+                    <i class="bx bx-plus-circle"></i> Borrow Equipment Now
+                  </a>
+                </td>
+              </tr>
+            <% } else { %>
+              <% requests.forEach(function(item) { %>
+                <%
+                  const isItemOverdue = item.status === 'Issued' && item.expectedReturnDate && new Date(item.expectedReturnDate) < now;
+                  const displayStatus = isItemOverdue ? 'Overdue' : item.status;
+                %>
+                <tr>
+                  <td>
+                    <strong><%= item.asset ? item.asset.name : 'Unknown Asset' %></strong>
+                    <div style="font-size: 0.78rem; color: var(--text-muted);">
+                      Tag: <%= item.asset ? item.asset.assetTag : 'N/A' %> • <%= item.asset ? item.asset.labLocation : '' %>
+                    </div>
+                  </td>
+                  <td><strong><%= item.quantity %></strong></td>
+                  <td style="max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    <%= item.purpose %>
+                  </td>
+                  <td><%= new Date(item.createdAt).toLocaleDateString() %></td>
+                  <td>
+                    <%= item.expectedReturnDate ? new Date(item.expectedReturnDate).toLocaleDateString() : '—' %>
+                    <% if (isItemOverdue) { %>
+                      <span style="color: #fb7185; font-size: 0.75rem; display: block; font-weight: 700;">
+                        <i class="bx bx-alarm"></i> OVERDUE RETURN
+                      </span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <span class="status-badge <%= displayStatus %>">
+                      <%= displayStatus %>
+                    </span>
+                  </td>
+                  <td>
+                    <% if (item.status === 'Returned') { %>
+                      <span class="condition-pill <%= item.returnCondition %>">
+                        <%= item.returnCondition %>
+                      </span>
+                    <% } else { %>
+                      <span style="color: var(--text-dim); font-size: 0.8rem;">—</span>
+                    <% } %>
+                  </td>
+                  <td style="font-size: 0.82rem; color: var(--text-muted); max-width: 180px;">
+                    <%= item.inchargeRemarks || '—' %>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <%- include('../../partials/footer') %>
+
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

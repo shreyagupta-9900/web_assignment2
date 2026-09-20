@@ -1,0 +1,99 @@
+<!--
+  ============================================================================
+  🧭 NAVIGATION BAR PARTIAL (views/partials/navbar.ejs)
+  ============================================================================
+  💡 WHAT IS A PARTIAL?
+  A partial is a reusable piece of HTML included into multiple pages.
+
+  💡 ROLE-BASED CONDITIONAL RENDERING:
+  We check currentUser.role to only show relevant links:
+  - Requesters see "Borrow Item" & "My Requests"
+  - In-Charge & Admin see "Issue & Returns"
+  - Admin sees "Add Asset"
+  ============================================================================
+-->
+
+<header class="main-header">
+  <div class="header-container">
+    <!-- Brand Logo & Title -->
+    <a href="<%= currentUser ? '/dashboard' : '/' %>" class="brand-logo">
+      <div class="brand-icon">
+        <i class="bx bx-microchip"></i>
+      </div>
+      <div>
+        <div class="brand-title">LabScope</div>
+        <div class="brand-sub">Institutional Asset Tracking</div>
+      </div>
+    </a>
+
+    <% if (currentUser) { %>
+      <!-- Navigation Links for Logged-In Users -->
+      <nav class="nav-menu">
+        <a href="/dashboard" class="nav-link <%= currentPath === '/dashboard' ? 'active' : '' %>">
+          <i class="bx bx-grid-alt"></i> Dashboard
+        </a>
+        <a href="/assets" class="nav-link <%= currentPath.startsWith('/assets') && !currentPath.includes('/new') ? 'active' : '' %>">
+          <i class="bx bx-cabinet"></i> Equipment Catalog
+        </a>
+
+        <!-- Requester Specific Links -->
+        <% if (currentUser.role === 'requester') { %>
+          <a href="/requests/new" class="nav-link <%= currentPath === '/requests/new' ? 'active' : '' %>">
+            <i class="bx bx-plus-circle"></i> Borrow Item
+          </a>
+          <a href="/requests/my" class="nav-link <%= currentPath === '/requests/my' ? 'active' : '' %>">
+            <i class="bx bx-receipt"></i> My Requests
+          </a>
+        <% } %>
+
+        <!-- Lab In-Charge & Admin Requisition Queue -->
+        <% if (currentUser.role === 'incharge' || currentUser.role === 'admin') { %>
+          <a href="/requests" class="nav-link <%= currentPath === '/requests' ? 'active' : '' %>">
+            <i class="bx bx-transfer-alt"></i> Issue & Returns
+          </a>
+        <% } %>
+
+        <!-- Admin Only Asset Registration -->
+        <% if (currentUser.role === 'admin') { %>
+          <a href="/assets/new" class="nav-link <%= currentPath === '/assets/new' ? 'active' : '' %>">
+            <i class="bx bx-plus"></i> Add Asset
+          </a>
+        <% } %>
+      </nav>
+
+      <div class="nav-right">
+        <!-- Logged-In User Profile Pill -->
+        <div class="user-profile-badge">
+          <div class="user-avatar">
+            <%= currentUser.name.charAt(0).toUpperCase() %>
+          </div>
+          <div class="user-info">
+            <span class="user-name"><%= currentUser.name.split(' ')[0] %></span>
+            <span class="role-tag <%= currentUser.role %>">
+              <%= currentUser.role === 'incharge' ? 'Lab In-Charge' : currentUser.role %>
+            </span>
+          </div>
+        </div>
+
+        <!-- Dark/Light Theme Toggle Button -->
+        <button type="button" class="theme-btn" id="themeToggleBtn" title="Toggle Dark/Light Mode" aria-label="Toggle Theme">
+          <i class="bx bx-sun"></i>
+        </button>
+
+        <!-- Sign Out Button -->
+        <a href="/logout" class="btn btn-secondary btn-sm" title="Sign Out">
+          <i class="bx bx-log-out"></i>
+        </a>
+      </div>
+    <% } else { %>
+      <!-- Navigation Links for Anonymous Visitors -->
+      <div class="nav-right">
+        <button type="button" class="theme-btn" id="themeToggleBtn" title="Toggle Dark/Light Mode" aria-label="Toggle Theme">
+          <i class="bx bx-sun"></i>
+        </button>
+        <a href="/login" class="btn btn-secondary btn-sm">Sign In</a>
+        <a href="/register" class="btn btn-primary btn-sm">Register</a>
+      </div>
+    <% } %>
+  </div>
+</header>

@@ -1,0 +1,247 @@
+<!--
+  ============================================================================
+  📋 REQUISITION MANAGEMENT VIEW (views/pages/requests/index.ejs)
+  ============================================================================
+  💡 WHAT DOES THIS PAGE DO?
+  Used by Lab In-Charge and Admins to manage the requisition lifecycle:
+  1. Filter requests by status tab (All, Pending, Approved, Issued, Overdue, Returned).
+  2. Approve or Reject Pending requisitions.
+  3. Dispatch physical equipment ("Issue Gear"), which decrements stock.
+  4. Record returns via Modal dialog, auditing condition as OK, Damaged, or Lost.
+  ============================================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../../partials/head') %>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <%- include('../../partials/navbar') %>
+
+  <main class="main-wrapper">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">
+          <i class="bx bx-transfer-alt"></i> Equipment Issue & Return Management
+        </h1>
+        <p class="page-subtitle">
+          Review student/staff requisitions, dispatch approved gear, and audit equipment return conditions.
+        </p>
+      </div>
+    </div>
+
+    <!-- Flash Notification Alerts -->
+    <%- include('../../partials/alerts') %>
+
+    <!-- Filter Status Tabs Bar -->
+    <div class="filter-bar">
+      <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-right: 6px;">Filter Status:</span>
+      <a href="/requests" class="filter-chip <%= selectedStatus === 'All' ? 'active' : '' %>">All Requests</a>
+      <a href="/requests?status=Pending" class="filter-chip <%= selectedStatus === 'Pending' ? 'active' : '' %>">Pending Review</a>
+      <a href="/requests?status=Approved" class="filter-chip <%= selectedStatus === 'Approved' ? 'active' : '' %>">Approved (Ready to Dispatch)</a>
+      <a href="/requests?status=Issued" class="filter-chip <%= selectedStatus === 'Issued' ? 'active' : '' %>">Currently Issued</a>
+      <a href="/requests?status=Overdue" class="filter-chip <%= selectedStatus === 'Overdue' ? 'active' : '' %>" style="color: #fb7185;">Overdue Returns</a>
+      <a href="/requests?status=Returned" class="filter-chip <%= selectedStatus === 'Returned' ? 'active' : '' %>">Returned</a>
+      <a href="/requests?status=Rejected" class="filter-chip <%= selectedStatus === 'Rejected' ? 'active' : '' %>">Rejected</a>
+    </div>
+
+    <!-- Requisition Queue Table -->
+    <div class="table-card">
+      <div class="table-header">
+        <h2 class="table-title">
+          <i class="bx bx-task"></i>
+          <span>Requisition Queue (<%= requests.length %>)</span>
+        </h2>
+      </div>
+
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Equipment Name & Tag</th>
+              <th>Requester (Student/Staff)</th>
+              <th>Qty</th>
+              <th>Purpose</th>
+              <th>Expected Return</th>
+              <th>Status</th>
+              <th>Audit Condition</th>
+              <th style="text-align: right;">In-Charge Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!requests || requests.length === 0) { %>
+              <tr>
+                <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                  <i class="bx bx-check-circle" style="font-size: 3rem; margin-bottom: 8px;"></i>
+                  <p>No requisitions found matching status "<%= selectedStatus %>".</p>
+                </td>
+              </tr>
+            <% } else { %>
+              <% requests.forEach(function(item) { %>
+                <%
+                  // Calculate overdue status
+                  const isItemOverdue = item.status === 'Issued' && item.expectedReturnDate && new Date(item.expectedReturnDate) < now;
+                  const displayStatus = isItemOverdue ? 'Overdue' : item.status;
+                  const availableUnits = item.asset ? item.asset.availableQuantity : 0;
+                %>
+                <tr>
+                  <td>
+                    <strong><%= item.asset ? item.asset.name : 'Unknown Asset' %></strong>
+                    <div style="font-size: 0.78rem; color: var(--text-muted);">
+                      Tag: <%= item.asset ? item.asset.assetTag : 'N/A' %> • In Lab: <%= availableUnits %> units avail
+                    </div>
+                  </td>
+
+                  <td>
+                    <strong><%= item.requester ? item.requester.name : 'Unknown' %></strong>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">
+                      <%= item.requester ? item.requester.department : '' %> (<%= item.requester ? item.requester.idNumber : '' %>)
+                    </div>
+                  </td>
+
+                  <td><strong><%= item.quantity %></strong></td>
+
+                  <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    <%= item.purpose %>
+                  </td>
+
+                  <td>
+                    <%= item.expectedReturnDate ? new Date(item.expectedReturnDate).toLocaleDateString() : '—' %>
+                    <% if (isItemOverdue) { %>
+                      <span style="color: #fb7185; font-size: 0.75rem; display: block; font-weight: 700;">
+                        <i class="bx bx-alarm"></i> OVERDUE
+                      </span>
+                    <% } %>
+                  </td>
+
+                  <td>
+                    <span class="status-badge <%= displayStatus %>">
+                      <%= displayStatus %>
+                    </span>
+                  </td>
+
+                  <td>
+                    <% if (item.status === 'Returned') { %>
+                      <span class="condition-pill <%= item.returnCondition %>">
+                        <%= item.returnCondition %>
+                      </span>
+                    <% } else { %>
+                      <span style="color: var(--text-dim); font-size: 0.8rem;">—</span>
+                    <% } %>
+                  </td>
+
+                  <td style="text-align: right;">
+                    <div style="display: flex; justify-content: flex-end; gap: 6px;">
+
+                      <!-- 1. PENDING STATE: Show Approve and Reject buttons -->
+                      <% if (item.status === 'Pending') { %>
+                        <form action="/requests/<%= item._id %>/approve" method="POST" style="margin: 0;">
+                          <button type="submit" class="btn btn-success btn-sm" title="Approve Request">
+                            <i class="bx bx-check"></i> Approve
+                          </button>
+                        </form>
+
+                        <form action="/requests/<%= item._id %>/reject" method="POST" style="margin: 0;" onsubmit="return confirm('Reject this issue request?');">
+                          <button type="submit" class="btn btn-danger btn-sm" title="Reject Request">
+                            <i class="bx bx-x"></i> Reject
+                          </button>
+                        </form>
+                      <% } %>
+
+                      <!-- 2. APPROVED STATE: Show Issue Gear (Dispatch) button -->
+                      <% if (item.status === 'Approved') { %>
+                        <form action="/requests/<%= item._id %>/issue" method="POST" style="margin: 0;">
+                          <button type="submit" class="btn btn-primary btn-sm" title="Dispatch Equipment">
+                            <i class="bx bx-share-alt"></i> Issue Gear
+                          </button>
+                        </form>
+                      <% } %>
+
+                      <!-- 3. ISSUED STATE: Show Record Return button which opens Condition Audit Modal -->
+                      <% if (item.status === 'Issued') { %>
+                        <button
+                          type="button"
+                          class="btn btn-warning btn-sm btn-open-return"
+                          data-request-id="<%= item._id %>"
+                          data-asset-name="<%= item.asset ? item.asset.name : 'Equipment' %>"
+                          data-requester-name="<%= item.requester ? item.requester.name : 'Requester' %>"
+                          title="Record Equipment Return & Audit Condition"
+                        >
+                          <i class="bx bx-log-in-circle"></i> Record Return
+                        </button>
+                      <% } %>
+
+                      <!-- 4. FINALIZED STATES (Returned or Rejected) -->
+                      <% if (item.status === 'Returned' || item.status === 'Rejected') { %>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">Completed</span>
+                      <% } %>
+
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- 🔍 Return Equipment Modal Dialog (Condition Audit: OK / Damaged / Lost) -->
+  <div id="returnModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center; padding: 20px;">
+    <div class="form-card animate-fade-in" style="width: 100%; max-width: 500px; padding: 28px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+          <i class="bx bx-shield-quarter" style="color: var(--primary);"></i>
+          <span>Record Equipment Return</span>
+        </h3>
+        <button type="button" class="btn btn-secondary btn-sm btn-close-modal" style="padding: 4px 8px;">
+          <i class="bx bx-x" style="font-size: 1.2rem;"></i>
+        </button>
+      </div>
+
+      <div style="background: var(--bg-surface-subtle); padding: 12px; border-radius: 10px; margin-bottom: 18px; font-size: 0.88rem;">
+        <div><strong>Equipment:</strong> <span id="returnModalAsset">--</span></div>
+        <div><strong>Returned By:</strong> <span id="returnModalRequester">--</span></div>
+      </div>
+
+      <form id="returnModalForm" method="POST" action="">
+        <div class="form-group">
+          <label class="form-label" for="returnCondition">Physical Condition upon Return *</label>
+          <select id="returnCondition" name="returnCondition" class="form-control" required>
+            <option value="OK">OK / Good Condition (Full stock replenished)</option>
+            <option value="Damaged">Damaged / Needs Maintenance (Flagged for repair)</option>
+            <option value="Lost">Lost / Unreturned (Inventory count reduced)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="returnNotes">Return Audit Remarks</label>
+          <textarea
+            id="returnNotes"
+            name="returnNotes"
+            class="form-control"
+            rows="2"
+            placeholder="e.g. Scratched lens, missing power cable, returned in pristine shape..."
+          ></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+          <button type="button" class="btn btn-secondary btn-close-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-hover">
+            <i class="bx bx-check-circle"></i> Confirm Return
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <%- include('../../partials/footer') %>
+
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

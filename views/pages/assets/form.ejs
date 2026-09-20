@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../../partials/head') %>
+</head>
+<body>
+
+  <%- include('../../partials/navbar') %>
+
+  <main class="main-wrapper">
+
+    <div class="page-header" style="max-width: 720px; margin: 0 auto 24px;">
+      <div>
+        <a href="/assets" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; gap: 4px; margin-bottom: 6px;">
+          <i class="bx bx-left-arrow-alt"></i> Back to Catalog
+        </a>
+        <h1 class="page-title">
+          <%= isEdit ? `Edit Equipment: ${asset.name}` : 'Register New Lab Equipment / Asset' %>
+        </h1>
+        <p class="page-subtitle">
+          <%= isEdit ? 'Update specifications, quantity, or location.' : 'Add new laboratory equipment to institutional asset inventory.' %>
+        </p>
+      </div>
+    </div>
+
+    <%- include('../../partials/alerts') %>
+
+    <div class="form-card animate-fade-in">
+      <form action="<%= isEdit ? `/assets/${asset._id}/edit` : '/assets/new' %>" method="POST">
+
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 16px;">
+          <div class="form-group">
+            <label class="form-label" for="assetTag">Asset Tag Code *</label>
+            <input
+              type="text"
+              id="assetTag"
+              name="assetTag"
+              class="form-control"
+              placeholder="e.g. LAB-OSC-101"
+              value="<%= asset ? asset.assetTag : '' %>"
+              <%= isEdit ? 'readonly style="opacity: 0.7;"' : 'required' %>
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="name">Equipment / Asset Name *</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              class="form-control"
+              placeholder="e.g. Digital Storage Oscilloscope 100MHz"
+              value="<%= asset ? asset.name : '' %>"
+              required
+            />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label class="form-label" for="category">Equipment Category *</label>
+            <select id="category" name="category" class="form-control" required>
+              <% 
+                const cats = [
+                  "Electronics & Embedded",
+                  "Optics & Lasers",
+                  "Robotics & Computing",
+                  "Biotechnology & Life Sciences",
+                  "Chemistry & Materials",
+                  "Mechanical & Tools",
+                  "General Instruments"
+                ];
+              %>
+              <% cats.forEach(function(c) { %>
+                <option value="<%= c %>" <%= asset && asset.category === c ? 'selected' : '' %>><%= c %></option>
+              <% }); %>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="labLocation">Lab / Room Location *</label>
+            <input
+              type="text"
+              id="labLocation"
+              name="labLocation"
+              class="form-control"
+              placeholder="e.g. Embedded Systems Lab (Room 302)"
+              value="<%= asset ? asset.labLocation : '' %>"
+              required
+            />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label class="form-label" for="totalQuantity">Total Units Owned *</label>
+            <input
+              type="number"
+              id="totalQuantity"
+              name="totalQuantity"
+              class="form-control"
+              min="1"
+              value="<%= asset ? asset.totalQuantity : '1' %>"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="condition">Physical Condition</label>
+            <select id="condition" name="condition" class="form-control">
+              <option value="Good" <%= asset && asset.condition === 'Good' ? 'selected' : '' %>>Good</option>
+              <option value="Fair" <%= asset && asset.condition === 'Fair' ? 'selected' : '' %>>Fair</option>
+              <option value="Needs Maintenance" <%= asset && asset.condition === 'Needs Maintenance' ? 'selected' : '' %>>Needs Maintenance</option>
+              <option value="Damaged" <%= asset && asset.condition === 'Damaged' ? 'selected' : '' %>>Damaged</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="specifications">Technical Specifications & Notes</label>
+          <textarea
+            id="specifications"
+            name="specifications"
+            class="form-control"
+            rows="3"
+            placeholder="Key model specs, included probe accessories, serial number details, etc."
+          ><%= asset ? asset.specifications : '' %></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+          <a href="/assets" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary btn-hover">
+            <i class="bx bx-save"></i>
+            <%= isEdit ? 'Update Equipment Details' : 'Save to Inventory' %>
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </main>
+
+  <%- include('../../partials/footer') %>
+
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

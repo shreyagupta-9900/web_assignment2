@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head') %>
+</head>
+<body>
+
+  <%- include('../partials/navbar') %>
+
+  <main class="main-wrapper">
+    <!-- Hero Section -->
+    <div style="text-align: center; max-width: 780px; margin: 40px auto 48px;">
+      <div style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; background: var(--bg-surface); border: 1px solid var(--border-glass); margin-bottom: 16px; font-size: 0.85rem; font-weight: 600; color: #818cf8;">
+        <i class="bx bx-shield-quarter"></i> Institutional Asset Governance
+      </div>
+      <h1 style="font-size: 2.8rem; font-weight: 800; letter-spacing: -1px; line-height: 1.15; margin-bottom: 16px;">
+        Lab Equipment & Asset <br /><span style="background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Issue-Return Tracking</span>
+      </h1>
+      <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 28px;">
+        End-to-end asset lifecycle governance for institutional laboratories. Manage equipment inventory, automate issue request approvals, audit returns (OK, Damaged, Lost), and enforce return deadlines.
+      </p>
+
+      <div style="display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
+        <a href="/login" class="btn btn-primary btn-hover" style="padding: 12px 28px; font-size: 1rem;">
+          <i class="bx bx-log-in"></i> Sign In to Portal
+        </a>
+        <a href="/register" class="btn btn-secondary btn-hover" style="padding: 12px 28px; font-size: 1rem;">
+          <i class="bx bx-user-plus"></i> Register Account
+        </a>
+      </div>
+    </div>
+
+    <!-- 1-Click Demo Roles Showcase -->
+    <div style="max-width: 900px; margin: 0 auto;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <h2 style="font-size: 1.25rem; font-weight: 700;"><i class="bx bx-key"></i> 1-Click Instant Demo Access</h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Select a role below to test the full system without entering credentials:</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+        <!-- Admin Card -->
+        <a href="/demo-login/admin" class="kpi-card btn-hover" style="text-decoration: none; color: var(--text-main);">
+          <div class="kpi-icon-box red">
+            <i class="bx bx-shield"></i>
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <strong style="font-size: 1rem;">Admin Portal</strong>
+              <span class="role-tag admin">Admin</span>
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+              Asset CRUD, inventory limits, overall metrics & institutional oversight.
+            </p>
+          </div>
+        </a>
+
+        <!-- Lab In-Charge Card -->
+        <a href="/demo-login/incharge" class="kpi-card btn-hover" style="text-decoration: none; color: var(--text-main);">
+          <div class="kpi-icon-box blue">
+            <i class="bx bx-check-shield"></i>
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <strong style="font-size: 1rem;">Lab In-Charge</strong>
+              <span class="role-tag incharge">In-Charge</span>
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+              Approve/reject requests, record physical issue & returns (OK / Damaged / Lost).
+            </p>
+          </div>
+        </a>
+
+        <!-- Requester Card -->
+        <a href="/demo-login/requester" class="kpi-card btn-hover" style="text-decoration: none; color: var(--text-main);">
+          <div class="kpi-icon-box green">
+            <i class="bx bx-user-check"></i>
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <strong style="font-size: 1rem;">Student / Staff</strong>
+              <span class="role-tag requester">Requester</span>
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+              Browse equipment catalog, raise borrowing requests & monitor return due dates.
+            </p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <%- include('../partials/footer') %>
+
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>
