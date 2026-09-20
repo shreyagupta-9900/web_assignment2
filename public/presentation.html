@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LabScope — SIH Project Presentation Deck</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    body {
+      background: #0f172a;
+      color: #1e293b;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* Control Toolbar */
+    .toolbar {
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      color: #f8fafc;
+    }
+
+    .toolbar-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #38bdf8;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .tool-btn {
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #f8fafc;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+
+    .tool-btn:hover {
+      background: #334155;
+    }
+
+    /* Slide Container */
+    .slide-viewport {
+      width: 100%;
+      max-width: 1100px;
+      aspect-ratio: 16 / 9;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    /* Top & Bottom SIH Header/Footer Bars */
+    .sih-header-bar {
+      background: #0070c0;
+      color: #ffffff;
+      padding: 4px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .sih-footer-bar {
+      background: #0070c0;
+      color: #ffffff;
+      padding: 4px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    /* Slide Inner Content */
+    .slide-body {
+      flex: 1;
+      padding: 16px 28px 12px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Team Badge & SIH Header Row */
+    .slide-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .team-badge-oval {
+      border: 2px solid #5b2c86;
+      border-radius: 50px;
+      padding: 4px 18px;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #1e1b4b;
+      line-height: 1.2;
+    }
+
+    .slide-main-title {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex: 1;
+      padding: 0 10px;
+    }
+
+    .sih-logo-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #1e293b;
+      text-align: right;
+      line-height: 1.1;
+    }
+
+    .sih-logo-img {
+      width: 44px;
+      height: 44px;
+    }
+
+    /* Content Typography & Bullets */
+    .bullet-point {
+      font-size: 0.92rem;
+      line-height: 1.45;
+      margin-bottom: 10px;
+      color: #1e293b;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .bullet-icon {
+      color: #000000;
+      font-size: 1rem;
+      margin-top: 1px;
+    }
+
+    .bullet-point strong {
+      color: #000000;
+      text-decoration: underline;
+    }
+
+    /* 3-Column Benefits Circles (Slide 5 style) */
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 10px;
+      flex: 1;
+    }
+
+    .pillar-circle-card {
+      border: 2px solid #0284c7;
+      border-radius: 50%;
+      aspect-ratio: 1 / 1;
+      max-height: 240px;
+      margin: 0 auto;
+      padding: 20px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: left;
+    }
+
+    .pillar-header {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #000000;
+      margin-bottom: 8px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pillar-list {
+      font-size: 0.78rem;
+      line-height: 1.4;
+      color: #1e293b;
+      list-style: square;
+      padding-left: 16px;
+    }
+
+    .pillar-list strong {
+      text-decoration: underline;
+    }
+
+    /* 2-Box Feasibility Layout (Slide 4 style) */
+    .boxes-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 16px;
+      margin-top: 10px;
+      flex: 1;
+    }
+
+    .content-box {
+      border: 1.5px solid #0284c7;
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .content-box-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      text-decoration: underline;
+    }
+
+    .challenge-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed #e2e8f0;
+    }
+
+    .arrow-icon {
+      color: #0284c7;
+      font-weight: 900;
+      margin: 0 6px;
+    }
+
+    /* Architecture Flow Diagram (Slide 3 style) */
+    .arch-flow-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 12px 0 16px;
+      background: #f8fafc;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .arch-step-box {
+      flex: 1;
+      background: #ffffff;
+      border: 2px solid #6366f1;
+      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
+      font-size: 0.78rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .arch-step-box.highlight {
+      border-color: #0284c7;
+      background: #f0f9ff;
+    }
+
+    .tech-icons-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 6px;
+      background: #f1f5f9;
+      border-radius: 8px;
+      margin-top: auto;
+      font-size: 0.82rem;
+      font-weight: 700;
+      flex-wrap: wrap;
+    }
+
+    .tech-badge {
+      background: #ffffff;
+      padding: 3px 10px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      font-size: 0.78rem;
+      color: #334155;
+    }
+
+    /* Navigation Controller below */
+    .nav-bar-controls {
+      display: flex;
+      gap: 12px;
+      margin-top: 14px;
+      align-items: center;
+    }
+
+    .nav-btn {
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .slide-counter {
+      color: #94a3b8;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+        padding: 0;
+      }
+      .toolbar, .nav-bar-controls {
+        display: none;
+      }
+      .slide-viewport {
+        box-shadow: none;
+        max-width: 100%;
+        border-radius: 0;
+      }
+      .slide {
+        display: flex !important;
+        page-break-after: always;
+        height: 100vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Action Bar -->
+  <div class="toolbar">
+    <div class="toolbar-title">
+      <i class="bx bx-slideshow"></i> Smart India Hackathon Presentation Deck
+    </div>
+    <div class="toolbar-actions">
+      <button class="tool-btn" onclick="window.print()">
+        <i class="bx bx-printer"></i> Print / Export PDF
+      </button>
+      <button class="tool-btn" onclick="toggleFullScreen()">
+        <i class="bx bx-fullscreen"></i> Fullscreen
+      </button>
+      <a href="/" class="tool-btn" style="text-decoration: none;">
+        <i class="bx bx-home-alt"></i> Back to App
+      </a>
+    </div>
+  </div>
+
+  <!-- 16:9 Slide Presentation Frame -->
+  <div class="slide-viewport" id="slideViewport">
+
+    <!-- ==================================================================== -->
+    <!-- SLIDE 1: Title Slide                                                 -->
+    <!-- ==================================================================== -->
+    <div class="slide active" id="slide-1">
+      <div class="sih-header-bar">
+        <span>SMART INDIA HACKATHON 2024</span>
+        <span>Slide 1</span>
+      </div>
+
+      <div class="slide-body" style="justify-content: center; align-items: center; text-align: left; padding: 30px 40px;">
+        <div style="display: grid; grid-template-columns: 1.3fr 1fr; width: 100%; gap: 30px; align-items: center;">
+          <div>
+            <h1 style="font-size: 2.3rem; font-weight: 900; color: #000000; margin-bottom: 18px; line-height: 1.15;">
+              LabScope
+            </h1>
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: #0284c7; margin-bottom: 22px;">
+              Institutional Lab Equipment & Asset Issue-Return Tracking System
+            </h3>
+
+            <div style="font-size: 0.95rem; line-height: 1.7; color: #0f172a;">
+              <div>• <strong>Problem Statement ID</strong> – PS-LAB-2026</div>
+              <div>• <strong>Problem Statement Title</strong> – Institutional Lab Equipment & Asset Issue-Return Tracking System</div>
+              <div>• <strong>Theme</strong> – Smart Campus / Asset Governance</div>
+              <div>• <strong>PS Category</strong> – Software</div>
+              <div>• <strong>Team ID</strong> – 34005</div>
+              <div>• <strong>Team Name</strong> – Sarva-Conquerors</div>
+            </div>
+          </div>
+
+          <div style="text-align: center;">
+            <div style="width: 140px; height: 140px; background: linear-gradient(135deg, #4f46e5, #0ea5e9); border-radius: 30px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; color: white; font-size: 4rem; box-shadow: 0 10px 30px rgba(79, 70, 229, 0.4);">
+              <i class="bx bx-microchip"></i>
+            </div>
+            <div style="font-size: 1.1rem; font-weight: 800; color: #1e293b;">SMART INDIA HACKATHON 2024</div>
+            <div style="font-size: 0.85rem; color: #64748b; margin-top: 4px;">Institutional Asset Tracking Portal</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sih-footer-bar">
+        <span>@SIH Idea submission- Template</span>
+        <span>1</span>
+      </div>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- SLIDE 2: Proposed Solution & Features                                -->
+    <!-- ==================================================================== -->
+    <div class="slide" id="slide-2">
+      <div class="sih-header-bar">
+        <span>@SIH Idea submission- Template</span>
+        <span>2</span>
+      </div>
+
+      <div class="slide-body">
+        <div class="slide-header-row">
+          <div class="team-badge-oval">Sarva-<br />Conquerors</div>
+          <h2 class="slide-main-title">Proposed Solution & Core Features</h2>
+          <div class="sih-logo-box">
+            <i class="bx bx-brain" style="font-size: 2rem; color: #ea580c;"></i>
+            <span>SMART INDIA<br />HACKATHON<br />2024</span>
+          </div>
+        </div>
+
+        <div style="font-size: 0.86rem;">
+          <div class="bullet-point">
+            <span class="bullet-icon">❖</span>
+            <div><strong>Role-Based Access Control (RBAC):</strong> Tailored interfaces for 3 distinct roles: System Admin (Asset CRUD), Lab In-Charge (Requisition Approval & Dispatch), and Requester (Catalog browsing & checkout requests).</div>
+          </div>
+
+          <div class="bullet-point">
+            <span class="bullet-icon">❖</span>
+            <div><strong>4-Stage Requisition Lifecycle:</strong> 1) Request raised with purpose & future date ➔ 2) Lab In-Charge review/approval ➔ 3) Physical issue dispatch with automated stock decrement ➔ 4) Return audit with condition logging.</div>
+          </div>
+
+          <div class="bullet-point">
+            <span class="bullet-icon">❖</span>
+            <div><strong>Stock Integrity & Safety Guardrails:</strong> Atomic validation prevents issuing more units than physically available. Admin is restricted from deleting or downscaling items currently checked out.</div>
+          </div>
+
+          <div class="bullet-point">
+            <span class="bullet-icon">❖</span>
+            <div><strong>Return Condition Auditing (OK / Damaged / Lost):</strong> Upon physical return, In-Charge audits equipment condition: <code>OK</code> replenishes stock, <code>Damaged</code> schedules maintenance, and <code>Lost</code> adjusts total inventory count.</div>
+          </div>
+
+          <div class="bullet-point">
+            <span class="bullet-icon">❖</span>
+            <div><strong>Automated Overdue Detection & Alerts:</strong> Dynamic date comparison flags unreturned gear past deadline with pulsing dashboard alert banners.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sih-footer-bar">
+        <span>@SIH Idea submission- Template</span>
+        <span>2</span>
+      </div>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- SLIDE 3: Technical Approach & Architecture                           -->
+    <!-- ==================================================================== -->
+    <div class="slide" id="slide-3">
+      <div class="sih-header-bar">
+        <span>@SIH Idea submission- Template</span>
+        <span>3</span>
+      </div>
+
+      <div class="slide-body">
+        <div class="slide-header-row">
+          <div class="team-badge-oval">Sarva-<br />Conquerors</div>
+          <h2 class="slide-main-title">Technical Approach</h2>
+          <div class="sih-logo-box">
+            <i class="bx bx-brain" style="font-size: 2rem; color: #ea580c;"></i>
+            <span>SMART INDIA<br />HACKATHON<br />2024</span>
+          </div>
+        </div>
+
+        <div class="arch-flow-container">
+          <div class="arch-step-box">
+            <strong>1. User Input</strong><br />
+            <span style="font-size: 0.72rem; color: #64748b;">Role Logins, Catalog Search, Requisitions</span>
+          </div>
+          <span class="arrow-icon">➔</span>
+          <div class="arch-step-box highlight">
+            <strong>2. Express MVC Engine</strong><br />
+            <span style="font-size: 0.72rem; color: #64748b;">Session Auth, RBAC Guards, Controllers</span>
+          </div>
+          <span class="arrow-icon">➔</span>
+          <div class="arch-step-box highlight">
+            <strong>3. MongoDB ODM</strong><br />
+            <span style="font-size: 0.72rem; color: #64748b;">User, Asset, IssueRequest Schemas + Virtuals</span>
+          </div>
+          <span class="arrow-icon">➔</span>
+          <div class="arch-step-box">
+            <strong>4. UI & Analytics</strong><br />
+            <span style="font-size: 0.72rem; color: #64748b;">EJS Glassmorphism + Chart.js Visualizers</span>
+          </div>
+        </div>
+
+        <div style="font-size: 0.85rem; margin-bottom: 8px;">
+          <div class="bullet-point">
+            <span class="bullet-icon">❖</span>
+            <div><strong>MVC Architecture:</strong> Clear separation of concerns between Mongoose Schemas (Data), EJS Templates (View), and Express Controller pipelines (Logic).</div>
+          </div>
+          <div class="bullet-point">
+            <span class="bullet-icon">❖</span>
+            <div><strong>Security & Integrity:</strong> BCrypt password salting, HTTP-only session cookies, and automated database seeding on first startup.</div>
+          </div>
+        </div>
+
+        <div class="tech-icons-bar">
+          <span style="color: #000000; font-weight: 800;">Technologies Used:</span>
+          <span class="tech-badge">Node.js</span>
+          <span class="tech-badge">Express.js</span>
+          <span class="tech-badge">MongoDB</span>
+          <span class="tech-badge">Mongoose</span>
+          <span class="tech-badge">EJS Templates</span>
+          <span class="tech-badge">Chart.js</span>
+          <span class="tech-badge">BCrypt</span>
+          <span class="tech-badge">Vanilla CSS3</span>
+        </div>
+      </div>
+
+      <div class="sih-footer-bar">
+        <span>@SIH Idea submission- Template</span>
+        <span>3</span>
+      </div>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- SLIDE 4: Feasibility and Viability                                   -->
+    <!-- ==================================================================== -->
+    <div class="slide" id="slide-4">
+      <div class="sih-header-bar">
+        <span>@SIH Idea submission- Template</span>
+        <span>4</span>
+      </div>
+
+      <div class="slide-body">
+        <div class="slide-header-row">
+          <div class="team-badge-oval">Sarva-<br />Conquerors</div>
+          <h2 class="slide-main-title">Feasibility and Viability</h2>
+          <div class="sih-logo-box">
+            <i class="bx bx-brain" style="font-size: 2rem; color: #ea580c;"></i>
+            <span>SMART INDIA<br />HACKATHON<br />2024</span>
+          </div>
+        </div>
+
+        <div style="font-size: 0.86rem; margin-bottom: 6px;">
+          <div class="bullet-point">
+            <span class="bullet-icon">❖</span>
+            <div><strong>Is this Idea feasible?</strong> The proposed solution is highly <strong>feasible</strong> due to lightweight web architecture, fast server-side rendering, and low infrastructure hosting cost on university servers.</div>
+          </div>
+          <div class="bullet-point">
+            <span class="bullet-icon">❖</span>
+            <div><strong>Product Offering:</strong> Turnkey institutional equipment checkout & return auditing software for academic institutions, maker spaces, and central research labs.</div>
+          </div>
+        </div>
+
+        <div class="boxes-grid">
+          <div class="content-box">
+            <div class="content-box-title" style="color: #dc2626;">Challenges & Risks <span style="float: right; color: #16a34a; font-weight: 800;">Strategies for Overcoming</span></div>
+            <div class="challenge-row">
+              <span>Stock Over-Issuing</span>
+              <span class="arrow-icon">➔</span>
+              <strong>Live Atomic Stock Checking</strong>
+            </div>
+            <div class="challenge-row">
+              <span>Unreported Return Damage</span>
+              <span class="arrow-icon">➔</span>
+              <strong>Mandatory Return Audit Modal</strong>
+            </div>
+            <div class="challenge-row">
+              <span>Overdue Items Forgotten</span>
+              <span class="arrow-icon">➔</span>
+              <strong>Automated Alert Banners</strong>
+            </div>
+            <div class="challenge-row">
+              <span>Unauthorized Asset Deletions</span>
+              <span class="arrow-icon">➔</span>
+              <strong>RBAC Middleware Protection</strong>
+            </div>
+          </div>
+
+          <div class="content-box">
+            <div class="content-box-title" style="color: #0f172a;">Expected Customers:</div>
+            <div style="font-size: 0.82rem; line-height: 1.6;">
+              <div>➤ <strong>Higher Education Universities</strong> (Engineering & Science labs)</div>
+              <div>➤ <strong>Research Facilities</strong> (Central instrumentation centers)</div>
+              <div>➤ <strong>Polytechnic & ITIs</strong> (Workshop tool management)</div>
+              <div>➤ <strong>Innovation & Maker Spaces</strong> (FabLabs, 3D printing hubs)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sih-footer-bar">
+        <span>@SIH Idea submission- Template</span>
+        <span>4</span>
+      </div>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- SLIDE 5: Impact and Benefits                                         -->
+    <!-- ==================================================================== -->
+    <div class="slide" id="slide-5">
+      <div class="sih-header-bar">
+        <span>@SIH Idea submission- Template</span>
+        <span>5</span>
+      </div>
+
+      <div class="slide-body">
+        <div class="slide-header-row">
+          <div class="team-badge-oval">Sarva-<br />Conquerors</div>
+          <h2 class="slide-main-title">Impact and Benefits</h2>
+          <div class="sih-logo-box">
+            <i class="bx bx-brain" style="font-size: 2rem; color: #ea580c;"></i>
+            <span>SMART INDIA<br />HACKATHON<br />2024</span>
+          </div>
+        </div>
+
+        <div style="font-size: 0.85rem; margin-bottom: 4px;">
+          <strong>Target Audience:</strong> Lab In-Charges, Faculty Supervisors, Department Heads, Research Scholars, and Students.
+        </div>
+
+        <div class="pillars-grid">
+          <!-- Pillar 1 -->
+          <div>
+            <div class="pillar-header">
+              <i class="bx bx-group" style="color: #4f46e5; font-size: 1.3rem;"></i> Social & Operational
+            </div>
+            <div class="pillar-circle-card">
+              <ul class="pillar-list">
+                <li>100% <strong>Paperless</strong> institutional register.</li>
+                <li>Clear <strong>custody records</strong> eliminate disputes.</li>
+                <li>Immediate <strong>overdue alerts</strong> improve discipline.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Pillar 2 -->
+          <div>
+            <div class="pillar-header">
+              <i class="bx bx-dollar-circle" style="color: #16a34a; font-size: 1.3rem;"></i> Economical Benefits
+            </div>
+            <div class="pillar-circle-card">
+              <ul class="pillar-list">
+                <li><strong>Zero lost equipment</strong> capital loss.</li>
+                <li>Eliminates <strong>redundant purchases</strong> by optimizing stock.</li>
+                <li>Early <strong>damage detection</strong> reduces repair costs.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Pillar 3 -->
+          <div>
+            <div class="pillar-header">
+              <i class="bx bx-line-chart" style="color: #0284c7; font-size: 1.3rem;"></i> Academic Benefits
+            </div>
+            <div class="pillar-circle-card">
+              <ul class="pillar-list">
+                <li>Maximizes <strong>equipment utilization</strong> for projects.</li>
+                <li>Transparent <strong>borrowing queue</strong> prevents delays.</li>
+                <li>Proactive <strong>maintenance logs</strong> prevent lab downtime.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sih-footer-bar">
+        <span>@SIH Idea submission- Template</span>
+        <span>5</span>
+      </div>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- SLIDE 6: Live Deliverables & Demo                                    -->
+    <!-- ==================================================================== -->
+    <div class="slide" id="slide-6">
+      <div class="sih-header-bar">
+        <span>@SIH Idea submission- Template</span>
+        <span>6</span>
+      </div>
+
+      <div class="slide-body">
+        <div class="slide-header-row">
+          <div class="team-badge-oval">Sarva-<br />Conquerors</div>
+          <h2 class="slide-main-title">Live Deliverables & Verification</h2>
+          <div class="sih-logo-box">
+            <i class="bx bx-brain" style="font-size: 2rem; color: #ea580c;"></i>
+            <span>SMART INDIA<br />HACKATHON<br />2024</span>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 10px;">
+          <div class="content-box">
+            <div class="content-box-title" style="color: #4f46e5;">🔑 1-Click Instant Demo Portals:</div>
+            <div style="font-size: 0.85rem; line-height: 1.7;">
+              <div>• <strong>Admin Portal:</strong> <code>admin@lab.edu</code> (Pass: <code>admin123</code>)</div>
+              <div>• <strong>In-Charge Portal:</strong> <code>incharge@lab.edu</code> (Pass: <code>incharge123</code>)</div>
+              <div>• <strong>Student Portal:</strong> <code>student@lab.edu</code> (Pass: <code>student123</code>)</div>
+              <div style="margin-top: 10px;">
+                <a href="/" target="_blank" style="color: #2563eb; font-weight: 700; text-decoration: none;">
+                  🚀 Open Live Application (http://localhost:3000)
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="content-box">
+            <div class="content-box-title" style="color: #16a34a;">🧪 Quality Assurance & E2E Testing:</div>
+            <div style="font-size: 0.85rem; line-height: 1.7;">
+              <div>• <strong>Automated Test Suite:</strong> 26/26 Tests Passing (100%)</div>
+              <div>• <strong>Stock Integrity:</strong> Over-request validation verified.</div>
+              <div>• <strong>RBAC Security:</strong> Unauthorized route access blocked.</div>
+              <div style="margin-top: 10px;">
+                <a href="https://github.com/shreyagupta-9900/web_assignment2" target="_blank" style="color: #2563eb; font-weight: 700; text-decoration: none;">
+                  📦 GitHub: shreyagupta-9900/web_assignment2
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sih-footer-bar">
+        <span>@SIH Idea submission- Template</span>
+        <span>6</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Slide Navigation Bar -->
+  <div class="nav-bar-controls">
+    <button class="nav-btn" onclick="prevSlide()"><i class="bx bx-chevron-left"></i> Previous</button>
+    <span class="slide-counter" id="slideCounter">Slide 1 / 6</span>
+    <button class="nav-btn" onclick="nextSlide()">Next <i class="bx bx-chevron-right"></i></button>
+  </div>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 6;
+
+    function showSlide(index) {
+      if (index < 1) index = 1;
+      if (index > totalSlides) index = totalSlides;
+      currentSlide = index;
+
+      document.querySelectorAll('.slide').forEach((slide, i) => {
+        slide.classList.toggle('active', i + 1 === currentSlide);
+      });
+
+      document.getElementById('slideCounter').textContent = `Slide ${currentSlide} / ${totalSlides}`;
+    }
+
+    function nextSlide() {
+      showSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      showSlide(currentSlide - 1);
+    }
+
+    function toggleFullScreen() {
+      const elem = document.getElementById('slideViewport');
+      if (!document.fullscreenElement) {
+        elem.requestFullscreen().catch(err => {
+          alert(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // Keyboard Arrow Keys Navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullScreen();
+      }
+    });
+  </script>
+</body>
+</html>
